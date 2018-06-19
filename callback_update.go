@@ -18,6 +18,7 @@ func init() {
 	DefaultCallback.Update().Register("gorm:save_after_associations", saveAfterAssociationsCallback)
 	DefaultCallback.Update().Register("gorm:after_update", afterUpdateCallback)
 	DefaultCallback.Update().Register("gorm:commit_or_rollback_transaction", commitOrRollbackTransactionCallback)
+	DefaultCallback.Update().Register("gorm:after_update_commit", afterUpdateCommitCallback)
 }
 
 // assignUpdatingAttributesCallback assign updating attributes to model
@@ -114,6 +115,18 @@ func afterUpdateCallback(scope *Scope) {
 		}
 		if !scope.HasError() {
 			scope.CallMethod("AfterSave")
+		}
+	}
+}
+
+// afterUpdateCommitCallback will invoke `AfterUpdateCommit`, `AfterSaveCommit` method after update commit
+func afterUpdateCommitCallback(scope *Scope) {
+	if _, ok := scope.Get("gorm:update_column"); !ok {
+		if !scope.HasError() {
+			scope.CallMethod("AfterUpdateCommit")
+		}
+		if !scope.HasError() {
+			scope.CallMethod("AfterSaveCommit")
 		}
 	}
 }

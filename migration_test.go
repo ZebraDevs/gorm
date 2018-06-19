@@ -96,20 +96,24 @@ type Language struct {
 }
 
 type Product struct {
-	Id                    int64
-	Code                  string
-	Price                 int64
-	CreatedAt             time.Time
-	UpdatedAt             time.Time
-	AfterFindCallTimes    int64
-	BeforeCreateCallTimes int64
-	AfterCreateCallTimes  int64
-	BeforeUpdateCallTimes int64
-	AfterUpdateCallTimes  int64
-	BeforeSaveCallTimes   int64
-	AfterSaveCallTimes    int64
-	BeforeDeleteCallTimes int64
-	AfterDeleteCallTimes  int64
+	Id                         int64
+	Code                       string
+	Price                      int64
+	CreatedAt                  time.Time
+	UpdatedAt                  time.Time
+	AfterFindCallTimes         int64
+	BeforeCreateCallTimes      int64
+	AfterCreateCallTimes       int64
+	AfterCreateCommitCallTimes int64
+	BeforeUpdateCallTimes      int64
+	AfterUpdateCallTimes       int64
+	AfterUpdateCommitCallTimes int64
+	BeforeSaveCallTimes        int64
+	AfterSaveCallTimes         int64
+	AfterSaveCommitCallTimes   int64
+	BeforeDeleteCallTimes      int64
+	AfterDeleteCallTimes       int64
+	AfterDeleteCommitCallTimes int64
 }
 
 type Company struct {

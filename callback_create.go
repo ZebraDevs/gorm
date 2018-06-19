@@ -16,6 +16,7 @@ func init() {
 	DefaultCallback.Create().Register("gorm:save_after_associations", saveAfterAssociationsCallback)
 	DefaultCallback.Create().Register("gorm:after_create", afterCreateCallback)
 	DefaultCallback.Create().Register("gorm:commit_or_rollback_transaction", commitOrRollbackTransactionCallback)
+	DefaultCallback.Create().Register("gorm:after_create_commit", afterCreateCommitCallback)
 }
 
 // beforeCreateCallback will invoke `BeforeSave`, `BeforeCreate` method before creating
@@ -160,5 +161,15 @@ func afterCreateCallback(scope *Scope) {
 	}
 	if !scope.HasError() {
 		scope.CallMethod("AfterSave")
+	}
+}
+
+// afterCreateCommitCallback will invoke `AfterCreateCommit`, `AfterSaveCommit` method after create transaction
+func afterCreateCommitCallback(scope *Scope) {
+	if !scope.HasError() {
+		scope.CallMethod("AfterCreateCommit")
+	}
+	if !scope.HasError() {
+		scope.CallMethod("AfterSaveCommit")
 	}
 }
