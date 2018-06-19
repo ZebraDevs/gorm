@@ -12,6 +12,7 @@ func init() {
 	DefaultCallback.Delete().Register("gorm:delete", deleteCallback)
 	DefaultCallback.Delete().Register("gorm:after_delete", afterDeleteCallback)
 	DefaultCallback.Delete().Register("gorm:commit_or_rollback_transaction", commitOrRollbackTransactionCallback)
+	DefaultCallback.Delete().Register("gorm:after_delete_commit", afterDeleteCommitCallback)
 }
 
 // beforeDeleteCallback will invoke `BeforeDelete` method before deleting
@@ -59,5 +60,12 @@ func deleteCallback(scope *Scope) {
 func afterDeleteCallback(scope *Scope) {
 	if !scope.HasError() {
 		scope.CallMethod("AfterDelete")
+	}
+}
+
+// afterDeleteCommitCallback will invoke `AfterDeleteCommit` method after delete commit
+func afterDeleteCommitCallback(scope *Scope) {
+	if !scope.HasError() {
+		scope.CallMethod("AfterDeleteCommit")
 	}
 }

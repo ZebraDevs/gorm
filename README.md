@@ -33,6 +33,11 @@ The fantastic ORM library for Golang, aims to be developer friendly.
 
 [You can help to deliver a better GORM, check out things you can do](http://gorm.io/contribute.html)
 
+To start developing, clone your fork to `$GOPATH/src/github.com/jinzhu/gorm`. The tests currently import from this path, so if you do not clone to this directory, the tests will be importing source files from the online repo instead. 
+
+Next, install [Wercker](http://www.wercker.com/linux-cli-install). This allows you to run the dockerized integration tests with several database images. To run the test, run `wercker build` under the `/gorm` directory.
+
+
 ## License
 
 © Jinzhu, 2013~time.Now

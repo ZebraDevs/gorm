@@ -41,8 +41,16 @@ func (s *Product) AfterCreate(tx *gorm.DB) {
 	tx.Model(s).UpdateColumn(Product{AfterCreateCallTimes: s.AfterCreateCallTimes + 1})
 }
 
+func (s *Product) AfterCreateCommit(tx *gorm.DB) {
+	tx.Model(s).UpdateColumn(Product{AfterCreateCommitCallTimes: s.AfterCreateCommitCallTimes + 1})
+}
+
 func (s *Product) AfterUpdate() {
 	s.AfterUpdateCallTimes = s.AfterUpdateCallTimes + 1
+}
+
+func (s *Product) AfterUpdateCommit() {
+	s.AfterUpdateCommitCallTimes = s.AfterUpdateCommitCallTimes + 1
 }
 
 func (s *Product) AfterSave() (err error) {
@@ -50,6 +58,11 @@ func (s *Product) AfterSave() (err error) {
 		err = errors.New("can't save")
 	}
 	s.AfterSaveCallTimes = s.AfterSaveCallTimes + 1
+	return
+}
+
+func (s *Product) AfterSaveCommit() {
+	s.AfterSaveCommitCallTimes = s.AfterSaveCommitCallTimes + 1
 	return
 }
 
@@ -69,26 +82,45 @@ func (s *Product) AfterDelete() (err error) {
 	return
 }
 
+func (s *Product) AfterDeleteCommit() {
+	s.AfterDeleteCommitCallTimes = s.AfterDeleteCommitCallTimes + 1
+	return
+}
+
 func (s *Product) GetCallTimes() []int64 {
-	return []int64{s.BeforeCreateCallTimes, s.BeforeSaveCallTimes, s.BeforeUpdateCallTimes, s.AfterCreateCallTimes, s.AfterSaveCallTimes, s.AfterUpdateCallTimes, s.BeforeDeleteCallTimes, s.AfterDeleteCallTimes, s.AfterFindCallTimes}
+	return []int64{
+		s.BeforeCreateCallTimes,
+		s.BeforeSaveCallTimes,
+		s.BeforeUpdateCallTimes,
+		s.AfterCreateCallTimes,
+		s.AfterSaveCallTimes,
+		s.AfterUpdateCallTimes,
+		s.AfterCreateCommitCallTimes,
+		s.AfterSaveCommitCallTimes,
+		s.AfterUpdateCommitCallTimes,
+		s.BeforeDeleteCallTimes,
+		s.AfterDeleteCallTimes,
+		s.AfterDeleteCommitCallTimes,
+		s.AfterFindCallTimes,
+	}
 }
 
 func TestRunCallbacks(t *testing.T) {
 	p := Product{Code: "unique_code", Price: 100}
 	DB.Save(&p)
 
-	if !reflect.DeepEqual(p.GetCallTimes(), []int64{1, 1, 0, 1, 1, 0, 0, 0, 0}) {
+	if !reflect.DeepEqual(p.GetCallTimes(), []int64{1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0}) {
 		t.Errorf("Callbacks should be invoked successfully, %v", p.GetCallTimes())
 	}
 
 	DB.Where("Code = ?", "unique_code").First(&p)
-	if !reflect.DeepEqual(p.GetCallTimes(), []int64{1, 1, 0, 1, 0, 0, 0, 0, 1}) {
+	if !reflect.DeepEqual(p.GetCallTimes(), []int64{1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1}) {
 		t.Errorf("After callbacks values are not saved, %v", p.GetCallTimes())
 	}
 
 	p.Price = 200
 	DB.Save(&p)
-	if !reflect.DeepEqual(p.GetCallTimes(), []int64{1, 2, 1, 1, 1, 1, 0, 0, 1}) {
+	if !reflect.DeepEqual(p.GetCallTimes(), []int64{1, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1}) {
 		t.Errorf("After update callbacks should be invoked successfully, %v", p.GetCallTimes())
 	}
 
@@ -99,12 +131,12 @@ func TestRunCallbacks(t *testing.T) {
 	}
 
 	DB.Where("Code = ?", "unique_code").First(&p)
-	if !reflect.DeepEqual(p.GetCallTimes(), []int64{1, 2, 1, 1, 0, 0, 0, 0, 2}) {
+	if !reflect.DeepEqual(p.GetCallTimes(), []int64{1, 2, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 2}) {
 		t.Errorf("After update callbacks values are not saved, %v", p.GetCallTimes())
 	}
 
 	DB.Delete(&p)
-	if !reflect.DeepEqual(p.GetCallTimes(), []int64{1, 2, 1, 1, 0, 0, 1, 1, 2}) {
+	if !reflect.DeepEqual(p.GetCallTimes(), []int64{1, 2, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 2}) {
 		t.Errorf("After delete callbacks should be invoked successfully, %v", p.GetCallTimes())
 	}
 
